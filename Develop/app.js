@@ -8,13 +8,13 @@ const fs = require("fs");
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
-const render = require("./lib/htmlRenderer");
+const { render, renderManager, renderEngineer, renderIntern } = require("./lib/htmlRenderer");
 const Choice = require("inquirer/lib/objects/choice");
 const Choices = require("inquirer/lib/objects/choices");
 
 const teamMembersArray = [];
 
-// iniatial question prompt for manager and the
+// initial question prompt for manager and the
 function managerPrompt() {
     return inquirer.prompt([
         {
@@ -42,12 +42,14 @@ function managerPrompt() {
         .then(function (managersAns) {
             const manager = new Manager(managersAns.managerName, managersAns.managerId, managersAns.managerEmail, managersAns.managerOfficeNumber)
             // console.log(manager);
+            // const managerHtml = renderManager(manager);
+            // console.log(managerHtml);
 
             function myTeamMembersArr() {
                 teamMembersArray.push(manager)
             }
-            addEmpPrompt()
             myTeamMembersArr();
+            addEmpPrompt()
 
         })
 
@@ -77,7 +79,12 @@ function addEmpPrompt() {
             }
             else {
                 // console.log(teamMembersArray);
-                render(teamMembersArray);
+                function buildTeam() {
+                    // build html files from teamMembers array
+                    fs.writeFileSync(outputPath, render(teamMembersArray), "utf-8");
+                }
+                buildTeam();
+                // render(teamMembersArray);
 
                 return
             }
@@ -88,7 +95,7 @@ function addEmpPrompt() {
         });
 };
 
-// promts the questions realted to the intern and pushes them to the team array 
+// prompts the questions realted to the intern and pushes them to the team array 
 function addInternPrompt() {
     return inquirer.prompt([
         {
@@ -113,8 +120,9 @@ function addInternPrompt() {
         }
     ])
         .then(function (internAnswers) {
-            const intern = new Intern(internAnswers.internName, internAnswers.internEmail, internAnswers.internId, internAnswers.interSchool)
+            const intern = new Intern(internAnswers.internName, internAnswers.internEmail, internAnswers.internId, internAnswers.internSchool)
             // console.log(intern);
+            // const internHtml = renderIntern(intern);
 
             function myTeamMembersArr() {
                 teamMembersArray.push(intern)
@@ -158,6 +166,7 @@ function addEngineerPrompt() {
         .then(function (engAnswers) {
             const engineer = new Engineer(engAnswers.engineerName, engAnswers.engineerEmail, engAnswers.engineerId, engAnswers.github);
             // console.log(engineer);
+            // const engineerHtml = renderEngineer(engineer);
 
             function myTeamMembersArr() {
                 teamMembersArray.push(engineer);
@@ -171,9 +180,6 @@ function addEngineerPrompt() {
 // call the inniatal function to start the program 
 managerPrompt()
 
-// function teamMembersArray (){ put this in all the .then funtions and to push to one massive Array then call the render function
-    // push.answers
-// }
 
 
 
