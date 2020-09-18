@@ -9,15 +9,17 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+const Choice = require("inquirer/lib/objects/choice");
+const Choices = require("inquirer/lib/objects/choices");
 
+const teamMembersArray = [];
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
+// iniatial question prompt for manager and the
 function managerPrompt() {
     return inquirer.prompt([
         {
             type: "input",
-            name: "ManagersName",
+            name: "managerName",
             message: "managers name?"
         },
         {
@@ -27,66 +29,154 @@ function managerPrompt() {
         },
         {
             type: "input",
-            name: "managersId",
+            name: "managerId",
             message: "what is the employees id?"
         },
         {
             type: "input",
-            name: "managersOfficeNumber",
+            name: "managerOfficeNumber",
             message: "what is the managers office number?"
+        },
+
+    ])
+        .then(function (managersAns) {
+            const manager = new Manager(managersAns.managerName, managersAns.managerId, managersAns.managerEmail, managersAns.managerOfficeNumber)
+            // console.log(manager);
+
+            function myTeamMembersArr() {
+                teamMembersArray.push(manager)
+            }
+            addEmpPrompt()
+            myTeamMembersArr();
+
+        })
+
+        .catch(function (err) {
+            console.log(err);
+        });
+};
+
+// adds another employee and directs the user to there question bank and runs the render when 
+// no more employees are added 
+function addEmpPrompt() {
+    return inquirer.prompt([
+        {
+            type: "list",
+            name: "otherEmployees",
+            message: "would you like to add another employee?",
+            choices: ['engineer', 'intern', 'none']
+        }
+    ])
+        .then(function (answers) {
+            if (answers.otherEmployees === 'engineer') {
+                addEngineerPrompt();
+            }
+
+            else if (answers.otherEmployees == 'intern') {
+                addInternPrompt();
+            }
+            else {
+                // console.log(teamMembersArray);
+                render(teamMembersArray);
+
+                return
+            }
+
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+};
+
+// promts the questions realted to the intern and pushes them to the team array 
+function addInternPrompt() {
+    return inquirer.prompt([
+        {
+            type: "input",
+            name: "internName",
+            message: "interns name?"
         },
         {
             type: "input",
-            name: "otherEmployees",
-            message: "would you like to add another employee?"
+            name: "internEmail",
+            message: "interns email address?"
+        },
+        {
+            type: "input",
+            name: "internId",
+            message: "what is the employees id?"
+        },
+        {
+            type: "input",
+            name: "internSchool",
+            message: "what school does the intern Attend?"
         }
     ])
+        .then(function (internAnswers) {
+            const intern = new Intern(internAnswers.internName, internAnswers.internEmail, internAnswers.internId, internAnswers.interSchool)
+            // console.log(intern);
+
+            function myTeamMembersArr() {
+                teamMembersArray.push(intern)
+            }
+
+            myTeamMembersArr();
+            addEmpPrompt()
+
+        })
+
+        .catch(function (err) {
+            console.log(err);
+        });
+
 };
+
+// promts the questions for the engineer and pushs them to the team array 
+function addEngineerPrompt() {
+    return inquirer.prompt([
+        {
+            type: "input",
+            name: "engineerName",
+            message: "engineers name?"
+        },
+        {
+            type: "input",
+            name: "engineerEmail",
+            message: "engineers email address?"
+        },
+        {
+            type: "input",
+            name: "engineerId",
+            message: "what is the employees id?"
+        },
+        {
+            type: "input",
+            name: "github",
+            message: "what is the engineers github username?"
+        }
+    ])
+        .then(function (engAnswers) {
+            const engineer = new Engineer(engAnswers.engineerName, engAnswers.engineerEmail, engAnswers.engineerId, engAnswers.github);
+            // console.log(engineer);
+
+            function myTeamMembersArr() {
+                teamMembersArray.push(engineer);
+            }
+            myTeamMembersArr();
+            addEmpPrompt();
+        })
+
+};
+
+// call the inniatal function to start the program 
 managerPrompt()
 
-    .then(function (managersAns) {
-        const manager = new Manager(managersAns.managerName, managersAns.managerId, managersAns.managerEmail, managersAns.managerOfficeNumber)
-        console.log(manager);
-    })
-    .then(function () {
-        console.log("Successfully wrote to index.html");
-    })
-    .catch(function (err) {
-        console.log(err);
-    });
+// function teamMembersArray (){ put this in all the .then funtions and to push to one massive Array then call the render function
+    // push.answers
+// }
 
-// function engineerPrompt() {
-//     return inquirer.prompt([
-//         {
-//             type: "input",
-//             name: "engineersName",
-//             message: "employees name?"
-//         },
-//         {
-//             type: "input",
-//             name: "engineersEmail",
-//             message: "employees email address?"
-//         },
-//         {
-//             type: "input",
-//             name: "engineersId",
-//             message: "what is the employees id?"
-//         }
-//     ])
-// };
-// engineerPrompt()
 
-//     .then(function (engineerResponces) {
 
-//         console.log(engineerResponces)
-
-//     })
-//     .then(function () {
-//         console.log("Successfully wrote to index.html");
-//     })
-//     .catch(function (err) {
-//         console.log(err);
-//     });
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
